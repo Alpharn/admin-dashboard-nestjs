@@ -6,6 +6,7 @@ import { User, UserDocument } from '../schemas/user.schema';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserEntity } from '../entities/user.entity';
+import { RemoveResult, UpdateResult } from 'src/shared/interfaces/shared.interfaces';
 
 @Injectable()
 export class UsersService {
@@ -41,7 +42,7 @@ export class UsersService {
     return this.userModel.findOne({ email }).exec();
   }
 
-  async remove(id: string): Promise<{ deleted: boolean; message?: string }> {
+  async remove(id: string): Promise<RemoveResult> {
     const result = await this.userModel.deleteOne({ _id: id }).exec();
     if (result.deletedCount === 0) {
       throw new NotFoundException('User not found');
@@ -49,7 +50,7 @@ export class UsersService {
     return { deleted: true };
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<{ user: UserEntity; message: string }> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
     const updatedUser = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).exec();
     if (!updatedUser) {
       throw new NotFoundException('User not found');

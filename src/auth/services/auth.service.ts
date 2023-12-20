@@ -17,7 +17,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService
-  ) { }
+  ) {}
 
   async hashData(data: string): Promise<string> {
     const salt = await bcrypt.genSalt();
@@ -107,21 +107,25 @@ export class AuthService {
     await this.updateRefreshToken(userDocument._id.toString(), tokens.refreshToken);
   }
 
-  async refreshTokens(userId: string, refreshToken: string): Promise<Tokens> {
+  async refreshTokens(userId: string, refreshToken: string, res: Response): Promise<{ tokens: Tokens }> {
     const userDocument = await this.usersService.findById(userId);
-
+  
     if (!userDocument || !userDocument.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
-
+  
     const refreshTokenMatches = await bcrypt.compare(refreshToken, userDocument.refreshToken);
     if (!refreshTokenMatches) {
       throw new ForbiddenException('Access Denied');
     }
-
+  
     const newTokens = await this.getTokens(userDocument);
     await this.updateRefreshToken(userDocument._id.toString(), newTokens.refreshToken);
-    return newTokens;
+  
+    res.cookie('accessToken', newTokens.accessToken, { httpOnly: true });
+    res.cookie('refreshToken', newTokens.refreshToken, { httpOnly: true });
+  
+    return { tokens: newTokens };
   }
 
   async validateUser(payload: Payload): Promise<UserDocument | undefined> {

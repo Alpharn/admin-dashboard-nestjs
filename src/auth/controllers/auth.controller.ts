@@ -48,13 +48,9 @@ export class AuthController {
   async refreshTokens(
     @Res() response: Response,
     @Param('id') userId: string,
-    @Body('refreshToken') refreshToken: string,
+    @Body('refreshToken') refreshToken: string
   ): Promise<Response> {
-    const tokens = await this.authService.refreshTokens(userId, refreshToken);
-
-    response.cookie('accessToken', tokens.accessToken, { httpOnly: true });
-    response.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
-
+    const { tokens } = await this.authService.refreshTokens(userId, refreshToken, response);
     return response.json(tokens);
   }
 
