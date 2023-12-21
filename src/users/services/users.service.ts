@@ -7,6 +7,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { RemoveResult, UpdateResult } from 'src/shared/interfaces/shared.interfaces';
+import { Role } from 'src/roles/enums/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +20,10 @@ export class UsersService {
       throw new HttpException('Email already in use', HttpStatus.BAD_REQUEST);
     }
 
-    const createdUser = new this.userModel(createUserDto);
+    const createdUser = new this.userModel({
+      ...createUserDto,
+      role: Role.User, 
+    });
     await createdUser.save();
 
     return createdUser; 

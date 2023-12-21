@@ -5,17 +5,20 @@ import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from '../dto/login.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
 
   constructor(private authService: AuthService) { }
 
+  @Public()
   @Post('sign-up')
   async signUp(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
     return this.authService.signUp(createUserDto);
   }
 
+  @Public()
   @Post('sign-in')
   async signIn(@Res() response: Response, @Body() loginDto: LoginDto): Promise<Response> {
     const tokens = await this.authService.signIn(loginDto);
