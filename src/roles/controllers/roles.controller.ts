@@ -21,8 +21,11 @@ export class RolesController {
   @Post('create/role')
   @Roles(Role.Admin)
   @UseGuards(RoleGuard)
-  async createRole(@Body() createRoleDto: CreateRoleDto): Promise<RoleSchema> {
-    return this.rolesService.createRole(createRoleDto);
+  async createRole(
+    @Body() createRoleDto: CreateRoleDto, 
+    @Request() req: Request & { user: JwtUserPayload }): Promise<RoleSchema> {
+    const creatorUserId = req.user.userId;
+    return this.rolesService.createRole(createRoleDto, creatorUserId);
   }
 
   @Get('all')
@@ -41,7 +44,7 @@ export class RolesController {
     @Body() updateRoleDto: UpdateRoleDto,
     @Request() req: Request & { user: JwtUserPayload }
   ): Promise<RoleSchema> {  
-    const updaterUsername = req.user.email;
+    const updaterUsername = req.user.userId;
     return this.rolesService.updateRole(id, updateRoleDto, updaterUsername);
   }
 

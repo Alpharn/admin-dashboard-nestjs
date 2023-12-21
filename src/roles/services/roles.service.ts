@@ -12,18 +12,21 @@ export class RolesService {
   async initRoles(): Promise<void> {
     const roles = await this.roleModel.find();
     if (roles.length === 0) {
-      await new this.roleModel({ title: 'Admin' }).save();
-      await new this.roleModel({ title: 'User' }).save();
+      await new this.roleModel({ title: 'Admin', createdBy: 'system' }).save();
+      await new this.roleModel({ title: 'User', createdBy: 'system' }).save();
     }
   }
 
-  async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
+  async createRole(createRoleDto: CreateRoleDto, creatorUsername: string): Promise<Role> {
     const existingRole = await this.roleModel.findOne({ title: createRoleDto.title }).exec();
     if (existingRole) {
       throw new BadRequestException(`Role ${createRoleDto.title} already exists.`);
     }
-
-    const newRole = new this.roleModel(createRoleDto);
+  
+    const newRole = new this.roleModel({
+      ...createRoleDto,
+      createdBy: creatorUsername,
+    });
     return newRole.save();
   }
 
