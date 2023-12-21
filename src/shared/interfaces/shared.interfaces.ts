@@ -9,3 +9,9 @@ export interface RemoveResult {
   deleted: boolean;
   message?: string;
 }
+
+export interface JwtUserPayload {
+  userId: string;
+  email: string;
+  role: string;
+}
