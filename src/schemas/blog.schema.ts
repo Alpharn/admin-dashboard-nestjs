@@ -2,7 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
 import { User } from '../users/schemas/user.schema';
-import { Post } from './posts.schema';
+import { Post } from 'src/posts/schemas/posts.schema';
 
 @Schema()
 export class Blog {

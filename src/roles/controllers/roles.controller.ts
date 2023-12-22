@@ -16,7 +16,7 @@ import { AuthGuard } from 'src/auth/guards/auth.guard';
 @Controller('roles')
 export class RolesController {
 
-  constructor(private rolesService: RolesService) { }
+  constructor(private rolesService: RolesService) {}
 
   @Post('create/role')
   @Roles(Role.Admin)

@@ -17,7 +17,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService
-  ) {}
+  ) { }
 
   async hashData(data: string): Promise<string> {
     const salt = await bcrypt.genSalt();
@@ -46,17 +46,17 @@ export class AuthService {
 
   async updateRefreshToken(userId: string, refreshToken: string): Promise<void> {
     const hashedRefreshToken = await this.hashData(refreshToken);
-    await this.usersService.update(userId, { refreshToken: hashedRefreshToken });
+    await this.usersService.updateUser(userId, { refreshToken: hashedRefreshToken });
   }
 
   async signUp(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const userExists = await this.usersService.findByEmail(createUserDto.email);
+    const userExists = await this.usersService.userExists(createUserDto.email);
     if (userExists) {
       throw new BadRequestException('Email already in use');
     }
 
     const hashedPassword = await this.hashData(createUserDto.password);
-    const userDocument = await this.usersService.create({
+    const userDocument = await this.usersService.createUser({
       ...createUserDto,
       password: hashedPassword,
     });
@@ -68,8 +68,7 @@ export class AuthService {
   }
 
   async signIn(loginDto: LoginDto): Promise<Tokens> {
-    const userDocument = await this.usersService.findByEmail(loginDto.email);
-
+    const userDocument = await this.usersService.findUserByEmail(loginDto.email);
     if (!userDocument) {
       throw new BadRequestException('Invalid credentials');
     }
@@ -85,12 +84,12 @@ export class AuthService {
   }
 
   async logout(userId: string, res: Response): Promise<void> {
-    await this.usersService.update(userId, { refreshToken: null });
+    await this.usersService.updateUser(userId, { refreshToken: null });
     res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
   }
 
   async resetPassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
-    const userDocument = await this.usersService.findById(userId);
+    const userDocument = await this.usersService.findUserById(userId);
     if (!userDocument) {
       throw new BadRequestException('Invalid credentials');
     }
@@ -101,35 +100,35 @@ export class AuthService {
     }
 
     const hashedPassword = await this.hashData(newPassword);
-    await this.usersService.update(userId, { password: hashedPassword });
+    await this.usersService.updateUser(userId, { password: hashedPassword });
 
     const tokens = await this.getTokens(userDocument);
     await this.updateRefreshToken(userDocument._id.toString(), tokens.refreshToken);
   }
 
   async refreshTokens(userId: string, refreshToken: string, res: Response): Promise<{ tokens: Tokens }> {
-    const userDocument = await this.usersService.findById(userId);
-  
+    const userDocument = await this.usersService.findUserById(userId);
+
     if (!userDocument || !userDocument.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
-  
+
     const refreshTokenMatches = await bcrypt.compare(refreshToken, userDocument.refreshToken);
     if (!refreshTokenMatches) {
       throw new ForbiddenException('Access Denied');
     }
-  
+
     const newTokens = await this.getTokens(userDocument);
     await this.updateRefreshToken(userDocument._id.toString(), newTokens.refreshToken);
-  
+
     res.cookie('accessToken', newTokens.accessToken, { httpOnly: true });
     res.cookie('refreshToken', newTokens.refreshToken, { httpOnly: true });
-  
+
     return { tokens: newTokens };
   }
 
   async validateUser(payload: Payload): Promise<UserDocument | undefined> {
-    const user = await this.usersService.findById(payload.userId);
+    const user = await this.usersService.findUserById(payload.userId);
     if (!user) {
       return undefined;
     }

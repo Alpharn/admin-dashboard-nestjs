@@ -1,7 +1,13 @@
+import { Post as PostEntity } from "src/posts/schemas/posts.schema";
 import { UserEntity } from "src/users/entities/user.entity";
 
-export interface UpdateResult {
+export interface UpdateUserResult {
   user: UserEntity;
+  message: string;
+}
+
+export interface UpdatePostResult {
+  post: PostEntity;
   message: string;
 }
 
