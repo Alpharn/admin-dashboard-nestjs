@@ -1,9 +1,10 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 
-import { User } from '../users/schemas/user.schema';
-import { Content } from './content.schema';
+import { User } from 'src/users/schemas/user.schema';
+import { Content } from 'src/schemas/content.schema';
 
+export type PostDocument = HydratedDocument<Post>;
 @Schema()
 export class Post {
   @Prop()
@@ -16,7 +17,7 @@ export class Post {
   date: Date;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user: User;
+  author: User;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Content' })
   image: Content;

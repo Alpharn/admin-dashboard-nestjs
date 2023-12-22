@@ -17,22 +17,22 @@ export class UsersController {
 
   @Post('create/user')
   async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.createUser(createUserDto);
   }
 
   @Get('all')
   async getAllUsers() {
-    return this.usersService.findAll();
+    return this.usersService.findAllUsers();
   }
 
   @Get(':id')
   async getUserById(@Param('id') id: string) {
-    return this.usersService.findById(id);
+    return this.usersService.findUserById(id);
   }
 
   @Patch(':id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const result = await this.usersService.update(id, updateUserDto);
+    const result = await this.usersService.updateUser(id, updateUserDto);
     return {
       data: result.user,
       message: result.message
@@ -43,7 +43,7 @@ export class UsersController {
   @UseGuards(RoleGuard)
   @Delete(':id')
   async removeUser(@Param('id') id: string) {
-    return this.usersService.remove(id);
+    return this.usersService.removeUser(id);
   }
 
 }
