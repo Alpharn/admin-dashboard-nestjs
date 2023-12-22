@@ -17,7 +17,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService
-  ) {}
+  ) { }
 
   async hashData(data: string): Promise<string> {
     const salt = await bcrypt.genSalt();
@@ -50,7 +50,7 @@ export class AuthService {
   }
 
   async signUp(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const userExists = await this.usersService.findUserByEmail(createUserDto.email);
+    const userExists = await this.usersService.userExists(createUserDto.email);
     if (userExists) {
       throw new BadRequestException('Email already in use');
     }
@@ -69,7 +69,6 @@ export class AuthService {
 
   async signIn(loginDto: LoginDto): Promise<Tokens> {
     const userDocument = await this.usersService.findUserByEmail(loginDto.email);
-
     if (!userDocument) {
       throw new BadRequestException('Invalid credentials');
     }
@@ -109,22 +108,22 @@ export class AuthService {
 
   async refreshTokens(userId: string, refreshToken: string, res: Response): Promise<{ tokens: Tokens }> {
     const userDocument = await this.usersService.findUserById(userId);
-  
+
     if (!userDocument || !userDocument.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
-  
+
     const refreshTokenMatches = await bcrypt.compare(refreshToken, userDocument.refreshToken);
     if (!refreshTokenMatches) {
       throw new ForbiddenException('Access Denied');
     }
-  
+
     const newTokens = await this.getTokens(userDocument);
     await this.updateRefreshToken(userDocument._id.toString(), newTokens.refreshToken);
-  
+
     res.cookie('accessToken', newTokens.accessToken, { httpOnly: true });
     res.cookie('refreshToken', newTokens.refreshToken, { httpOnly: true });
-  
+
     return { tokens: newTokens };
   }
 

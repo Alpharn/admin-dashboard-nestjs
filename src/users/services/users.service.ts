@@ -46,6 +46,11 @@ export class UsersService {
     return this.userModel.findOne({ email }).exec();
   }
 
+  async userExists(email: string): Promise<boolean> {
+    const result = await this.userModel.exists({ email });
+    return !!result;
+  }
+
   async removeUser(id: string): Promise<RemoveResult> {
     const result = await this.userModel.deleteOne({ _id: id }).exec();
     if (result.deletedCount === 0) {
