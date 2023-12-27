@@ -16,6 +16,7 @@ import mongoose from 'mongoose';
 
 import { ContentService } from '../services/content.service';
 import { ContentDocument } from '../schema/content.schema';
+import { fileFilter } from 'src/utils/file-filter';
 
 @ApiBearerAuth()
 @ApiTags('content')
@@ -24,7 +25,7 @@ export class ContentController {
   constructor(private readonly contentService: ContentService) { }
 
   @Post('create/content')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { fileFilter: fileFilter }))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -50,7 +51,7 @@ export class ContentController {
   }
 
   @Patch('update/:id')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { fileFilter: fileFilter }))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

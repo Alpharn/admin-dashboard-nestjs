@@ -8,7 +8,7 @@ export const fileFilter = (
 ) => {
   if (!file.originalname.match(/\.(jpg|jpeg|png|gif|svg|mp4)$/)) {
     return callback(
-      new HttpException('Only image and video files are allowed!', HttpStatus.BAD_REQUEST),
+      new HttpException('Only image (jpg, jpeg, png, gif, svg) and video (mp4) files are allowed!', HttpStatus.BAD_REQUEST),
       false
     );
   }
