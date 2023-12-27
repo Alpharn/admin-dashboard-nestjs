@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Delete, Patch, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Post as PostEntity } from '../schemas/posts.schema';
 import { PostsService } from '../services/posts.service';
@@ -8,6 +8,7 @@ import { UpdatePostDto } from '../dto/update-post.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { UpdatePostResult } from 'src/shared/interfaces/shared.interfaces';
 
+@ApiBearerAuth()
 @ApiTags('posts')
 @UseGuards(AuthGuard)
 @Controller('posts')

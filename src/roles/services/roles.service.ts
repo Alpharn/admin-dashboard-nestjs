@@ -61,4 +61,12 @@ export class RolesService {
       throw new NotFoundException(`Role with ID ${id} not found`);
     }
   }
+
+  async getUserRoleId(): Promise<string> {
+    const role = await this.roleModel.findOne({ title: 'User' }).exec();
+    if (!role) {
+      throw new NotFoundException('Role "User" not found');
+    }
+    return role._id.toString();
+  }
 }

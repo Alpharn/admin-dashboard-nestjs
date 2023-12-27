@@ -10,19 +10,17 @@ import { UserDocument } from 'src/users/schemas/user.schema';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from '../dto/login.dto';
 import { Tokens, Payload } from '../interfaces/auth.interfaces';
+import { hashData } from "src/utils/hash.utils";
+import { RolesService } from 'src/roles/services/roles.service';
 
 @Injectable()
 export class AuthService {
 
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
-  ) { }
-
-  async hashData(data: string): Promise<string> {
-    const salt = await bcrypt.genSalt();
-    return bcrypt.hash(data, salt);
-  }
+    private jwtService: JwtService,
+    private rolesService: RolesService
+  ) {}
 
   async getTokens(user: UserDocument): Promise<Tokens> {
     const payload = {
@@ -40,12 +38,12 @@ export class AuthService {
       secret: jwtConstants.refreshTokenSecret,
       expiresIn: '7d',
     });
-
+    
     return { accessToken, refreshToken };
   }
 
   async updateRefreshToken(userId: string, refreshToken: string): Promise<void> {
-    const hashedRefreshToken = await this.hashData(refreshToken);
+    const hashedRefreshToken = await hashData(refreshToken);
     await this.usersService.updateUser(userId, { refreshToken: hashedRefreshToken });
   }
 
@@ -54,17 +52,17 @@ export class AuthService {
     if (userExists) {
       throw new BadRequestException('Email already in use');
     }
-
-    const hashedPassword = await this.hashData(createUserDto.password);
-    const userDocument = await this.usersService.createUser({
+  
+    const userRoleId = await this.rolesService.getUserRoleId();
+    const user = await this.usersService.createUser({
       ...createUserDto,
-      password: hashedPassword,
+      roleId: userRoleId
     });
-
-    const tokens = await this.getTokens(userDocument);
-    await this.updateRefreshToken(userDocument._id.toString(), tokens.refreshToken);
-
-    return new UserEntity(userDocument.toObject());
+  
+    const tokens = await this.getTokens(user);
+    await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
+  
+    return new UserEntity(user.toObject());
   }
 
   async signIn(loginDto: LoginDto): Promise<Tokens> {
@@ -99,8 +97,8 @@ export class AuthService {
       throw new BadRequestException('Current password is incorrect');
     }
 
-    const hashedPassword = await this.hashData(newPassword);
-    await this.usersService.updateUser(userId, { password: hashedPassword });
+    const hashedNewPassword = await hashData(newPassword);
+    await this.usersService.updateUser(userId, { password: hashedNewPassword });
 
     const tokens = await this.getTokens(userDocument);
     await this.updateRefreshToken(userDocument._id.toString(), tokens.refreshToken);

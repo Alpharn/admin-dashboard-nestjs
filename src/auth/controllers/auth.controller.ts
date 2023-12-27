@@ -6,7 +6,18 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from '../dto/login.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { Public } from 'src/decorators/public.decorator';
+import { 
+  ApiBadRequestResponse,
+  ApiBearerAuth, 
+  ApiCreatedResponse, 
+  ApiOkResponse, 
+  ApiOperation, 
+  ApiTags, 
+  ApiUnauthorizedResponse 
+} from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
 
@@ -14,31 +25,39 @@ export class AuthController {
 
   @Public()
   @Post('sign-up')
+  @ApiOperation({ summary: 'User Registration' })
+  @ApiCreatedResponse({ description: 'User successfully created' })
+  @ApiBadRequestResponse({ description: 'Invalid data' })
   async signUp(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
     return this.authService.signUp(createUserDto);
   }
 
   @Public()
   @Post('sign-in')
+  @ApiOperation({ summary: 'User Login' })
+  @ApiOkResponse({ description: 'Successful login' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   async signIn(@Res() response: Response, @Body() loginDto: LoginDto): Promise<Response> {
     const tokens = await this.authService.signIn(loginDto);
-
     response.cookie('accessToken', tokens.accessToken, { httpOnly: true });
     response.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
-
     return response.json({ message: 'Login successful', accessToken: tokens.accessToken });
   }
 
   @Post('logout')
+  @ApiOperation({ summary: 'User Logout' })
+  @ApiOkResponse({ description: 'Successful logout' })
   @HttpCode(200)
   logout(@Res() response: Response, @Req() req: Request): Response {
     const userId = req.body.userId;
     this.authService.logout(userId, response);
-
     return response.json({ message: 'Logout successful' });
   }
 
   @Patch('reset-password/:id')
+  @ApiOperation({ summary: 'Password Reset' })
+  @ApiOkResponse({ description: 'Password successfully reset' })
+  @ApiBadRequestResponse({ description: 'Invalid data' })
   async resetPassword(
     @Param('id') userId: string,
     @Body('currentPassword') currentPassword: string,
@@ -48,6 +67,9 @@ export class AuthController {
   }
 
   @Patch('refresh-token/:id')
+  @ApiOperation({ summary: 'Token Refresh' })
+  @ApiOkResponse({ description: 'Token successfully refreshed' })
+  @ApiBadRequestResponse({ description: 'Invalid data' })
   async refreshTokens(
     @Res() response: Response,
     @Param('id') userId: string,

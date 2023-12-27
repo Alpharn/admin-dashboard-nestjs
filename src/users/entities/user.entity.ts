@@ -1,6 +1,6 @@
 import { Exclude } from 'class-transformer';
 
-import { Content } from 'src/schemas/content.schema';
+import { Content } from 'src/content/schema/content.schema';
 
 export class UserEntity {
   _id?: string;

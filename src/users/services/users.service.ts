@@ -7,7 +7,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { RemoveResult, UpdateUserResult } from 'src/shared/interfaces/shared.interfaces';
-import { Role } from 'src/roles/enums/role.enum';
+import { hashData } from 'src/utils/hash.utils';
 
 @Injectable()
 export class UsersService {
@@ -15,20 +15,21 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserDocument> {
-    const existingUser = await this.userModel.findOne({ email: createUserDto.email }).exec();
-    if (existingUser) {
+    const emailExists = await this.userModel.exists({ email: createUserDto.email });
+    if (emailExists) {
       throw new BadRequestException('Email already in use');
     }
 
+    const hashedPassword = await hashData(createUserDto.password);
     const createdUser = new this.userModel({
       ...createUserDto,
-      role: Role.User, 
+      password: hashedPassword,
     });
     await createdUser.save();
 
-    return createdUser; 
+    return createdUser;
   }
-
+  
   async findAllUsers(): Promise<UserEntity[]> {
     const users = await this.userModel.find().exec();
     return users.map(user => new UserEntity(user.toObject()));
