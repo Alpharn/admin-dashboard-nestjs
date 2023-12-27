@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
@@ -9,6 +9,7 @@ import { Role } from 'src/roles/enums/role.enum';
 import { RoleGuard } from 'src/roles/guards/role.guard';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 
+@ApiBearerAuth()
 @ApiTags('users')
 @UseGuards(AuthGuard)
 @Controller('users')

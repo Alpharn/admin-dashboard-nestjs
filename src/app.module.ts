@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { PostsModule } from './posts/posts.module';
+import { ContentModule } from './content/content.module';
+import { AwsModule } from './aws/aws.module';
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { PostsModule } from './posts/posts.module';
     AuthModule,
     UsersModule,
     RolesModule,
-    PostsModule 
+    PostsModule,
+    ContentModule,
+    AwsModule 
   ],
   controllers: [AppController],
   providers: [AppService],

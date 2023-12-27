@@ -13,8 +13,8 @@ export class PostsService {
   constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
 
   async createPost(createPostDto: CreatePostDto): Promise<Post> {
-    const existingPost = await this.postModel.findOne({ title: createPostDto.title }).exec();
-    if (existingPost) {
+    const titleExists = await this.postModel.exists({ title: createPostDto.title });
+    if (titleExists) {
       throw new BadRequestException('Post with such title already exists');
     }
   
