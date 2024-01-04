@@ -71,4 +71,9 @@ export class UsersService {
     };
   }
 
+  async saveResetPasswordToken(userId: string, resetToken: string): Promise<void> {
+    const hashedToken = await hashData(resetToken);
+    await this.userModel.findByIdAndUpdate(userId, { resetPasswordToken: hashedToken }).exec();
+  }
+
 }

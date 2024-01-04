@@ -1,9 +1,10 @@
-import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 
 import { UsersService } from 'src/users/services/users.service';
+
 import { jwtConstants } from 'src/utils/constants';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UserDocument } from 'src/users/schemas/user.schema';
@@ -12,6 +13,8 @@ import { LoginDto } from '../dto/login.dto';
 import { Tokens, Payload } from '../interfaces/auth.interfaces';
 import { hashData } from "src/utils/hash.utils";
 import { RolesService } from 'src/roles/services/roles.service';
+import { randomBytes } from 'crypto';
+import { MailService } from './mail.service';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +22,8 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private rolesService: RolesService
+    private rolesService: RolesService,
+    private mailService: MailService 
   ) {}
 
   async getTokens(user: UserDocument): Promise<Tokens> {
@@ -131,6 +135,21 @@ export class AuthService {
       return undefined;
     }
     return user;
+  }
+
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usersService.findUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    const resetToken = randomBytes(32).toString('hex');
+    await this.usersService.saveResetPasswordToken(user._id.toString(), resetToken);
+  
+    const resetPasswordUrl = `http://localhost:8000/reset-password?token=${resetToken}`;
+  
+    await this.mailService.sendPasswordResetMail(email, resetPasswordUrl);
   }
 
 }

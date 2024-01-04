@@ -1,0 +1,37 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
+
+@Injectable()
+export class MailService {
+  private transporter: nodemailer.Transporter;
+
+  constructor(private configService: ConfigService) {
+    this.transporter = nodemailer.createTransport({
+      host: this.configService.get<string>('SMTP_HOST'),
+      port: this.configService.get<number>('SMTP_PORT'),
+      secure: false,
+      auth: {
+        user: this.configService.get<string>('SMTP_USER'),
+        pass: this.configService.get<string>('SMTP_PASSWORD'),
+      },
+    });
+  }
+
+  async sendPasswordResetMail(to: string, resetLink: string): Promise<void> {
+    const mailOptions = {
+      from: this.configService.get<string>('SMTP_USER'),
+      to: to,
+      subject: `Password Reset for ${this.configService.get<string>('API_URL')}`,
+      html: `
+        <div>
+          <h1>Password Reset Request</h1>
+          <p>To reset your password, please click the link below:</p>
+          <a href="${resetLink}">Reset Password</a>
+        </div>
+      `,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
+}

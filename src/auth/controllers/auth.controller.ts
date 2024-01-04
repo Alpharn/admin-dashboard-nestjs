@@ -6,15 +6,17 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from '../dto/login.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { Public } from 'src/decorators/public.decorator';
-import { 
+import {
   ApiBadRequestResponse,
-  ApiBearerAuth, 
-  ApiCreatedResponse, 
-  ApiOkResponse, 
-  ApiOperation, 
-  ApiTags, 
-  ApiUnauthorizedResponse 
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse
 } from '@nestjs/swagger';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 
 @ApiBearerAuth()
 @ApiTags('auth')
@@ -77,6 +79,15 @@ export class AuthController {
   ): Promise<Response> {
     const { tokens } = await this.authService.refreshTokens(userId, refreshToken, response);
     return response.json(tokens);
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Forgot Password' })
+  @ApiOkResponse({ description: 'Password reset email sent successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid email' })
+  @ApiBody({ type: ForgotPasswordDto })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<void> {
+    return this.authService.forgotPassword(forgotPasswordDto.email);
   }
 
 }

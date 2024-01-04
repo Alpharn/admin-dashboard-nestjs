@@ -10,6 +10,7 @@ import { RolesModule } from './roles/roles.module';
 import { PostsModule } from './posts/posts.module';
 import { ContentModule } from './content/content.module';
 import { AwsModule } from './aws/aws.module';
+import { MailService } from './auth/services/mail.service';
 
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import { AwsModule } from './aws/aws.module';
     AwsModule 
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MailService],
 })
 export class AppModule {}

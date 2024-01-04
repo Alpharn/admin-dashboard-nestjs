@@ -9,10 +9,10 @@ export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User {
   @Prop()
-  firstName: string;
+  firstName?: string;
 
   @Prop()
-  lastName: string;
+  lastName?: string;
 
   @Prop({ required: true, unique: true })
   email: string;
@@ -21,15 +21,18 @@ export class User {
   password: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Role' })
-  roleId: string;
+  roleId?: string;
 
   @Prop()
-  age: number;
+  age?: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Content' })
-  avatar: Content;
+  avatar?: Content;
 
   @Prop()
   refreshToken: string;
+
+  @Prop({ type: String, required: false })
+  resetPasswordToken?: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
