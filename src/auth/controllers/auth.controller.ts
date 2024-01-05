@@ -82,6 +82,7 @@ export class AuthController {
     return response.json(tokens);
   }
 
+  @Public()
   @Post('reset-password')
   @ApiOperation({ summary: 'Forgot Password' })
   @ApiOkResponse({ description: 'Password reset email sent successfully' })
@@ -91,6 +92,7 @@ export class AuthController {
     return this.authService.forgotPassword(forgotPasswordDto.email);
   }
 
+  @Public()
   @Patch('set-new-password')
   @ApiOperation({ summary: 'Set New Password' })
   @ApiOkResponse({ description: 'Password successfully reset' })
