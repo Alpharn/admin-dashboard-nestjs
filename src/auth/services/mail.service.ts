@@ -19,10 +19,11 @@ export class MailService {
   }
 
   async sendPasswordResetMail(to: string, resetLink: string): Promise<void> {
+    const username = to.split('@')[0];
     const mailOptions = {
       from: this.configService.get<string>('SMTP_USER'),
       to: to,
-      subject: `Password Reset for ${this.configService.get<string>('API_URL')}`,
+      subject: `Password Reset for ${username}`,
       html: `
         <div>
           <h1>Password Reset Request</h1>

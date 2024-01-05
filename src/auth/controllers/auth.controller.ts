@@ -17,6 +17,7 @@ import {
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import { SetNewPasswordDto } from '../dto/set-password.dto';
 
 @ApiBearerAuth()
 @ApiTags('auth')
@@ -56,11 +57,11 @@ export class AuthController {
     return response.json({ message: 'Logout successful' });
   }
 
-  @Patch('reset-password/:id')
+  @Patch('change-password/:id')
   @ApiOperation({ summary: 'Password Reset' })
   @ApiOkResponse({ description: 'Password successfully reset' })
   @ApiBadRequestResponse({ description: 'Invalid data' })
-  async resetPassword(
+  async changePassword(
     @Param('id') userId: string,
     @Body('currentPassword') currentPassword: string,
     @Body('newPassword') newPassword: string,
@@ -81,13 +82,21 @@ export class AuthController {
     return response.json(tokens);
   }
 
-  @Post('forgot-password')
+  @Post('reset-password')
   @ApiOperation({ summary: 'Forgot Password' })
   @ApiOkResponse({ description: 'Password reset email sent successfully' })
   @ApiBadRequestResponse({ description: 'Invalid email' })
   @ApiBody({ type: ForgotPasswordDto })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<void> {
     return this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @Patch('set-new-password')
+  @ApiOperation({ summary: 'Set New Password' })
+  @ApiOkResponse({ description: 'Password successfully reset' })
+  @ApiBadRequestResponse({ description: 'Invalid token or data' })
+  async setNewPassword(@Body() setPasswordDto: SetNewPasswordDto): Promise<void> {
+    await this.authService.setNewPassword(setPasswordDto.token, setPasswordDto.newPassword);
   }
 
 }

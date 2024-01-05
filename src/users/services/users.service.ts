@@ -12,7 +12,7 @@ import { hashData } from 'src/utils/hash.utils';
 @Injectable()
 export class UsersService {
 
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
   async createUser(createUserDto: CreateUserDto): Promise<UserDocument> {
     const emailExists = await this.userModel.exists({ email: createUserDto.email });
@@ -29,7 +29,7 @@ export class UsersService {
 
     return createdUser;
   }
-  
+
   async findAllUsers(): Promise<UserEntity[]> {
     const users = await this.userModel.find().exec();
     return users.map(user => new UserEntity(user.toObject()));
@@ -72,8 +72,11 @@ export class UsersService {
   }
 
   async saveResetPasswordToken(userId: string, resetToken: string): Promise<void> {
-    const hashedToken = await hashData(resetToken);
-    await this.userModel.findByIdAndUpdate(userId, { resetPasswordToken: hashedToken }).exec();
+    await this.userModel.findByIdAndUpdate(userId, { resetPasswordToken: resetToken }).exec();
+  }
+
+  async findUserByResetToken(resetToken: string): Promise<UserDocument | undefined> {
+    return this.userModel.findOne({ resetPasswordToken: resetToken }).exec();
   }
 
 }

@@ -15,6 +15,7 @@ import { hashData } from "src/utils/hash.utils";
 import { RolesService } from 'src/roles/services/roles.service';
 import { randomBytes } from 'crypto';
 import { MailService } from './mail.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -23,8 +24,9 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private rolesService: RolesService,
-    private mailService: MailService 
-  ) {}
+    private mailService: MailService,
+    private configService: ConfigService
+  ) { }
 
   async getTokens(user: UserDocument): Promise<Tokens> {
     const payload = {
@@ -42,7 +44,7 @@ export class AuthService {
       secret: jwtConstants.refreshTokenSecret,
       expiresIn: '7d',
     });
-    
+
     return { accessToken, refreshToken };
   }
 
@@ -56,16 +58,16 @@ export class AuthService {
     if (userExists) {
       throw new BadRequestException('Email already in use');
     }
-  
+
     const userRoleId = await this.rolesService.getUserRoleId();
     const user = await this.usersService.createUser({
       ...createUserDto,
       roleId: userRoleId
     });
-  
+
     const tokens = await this.getTokens(user);
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
-  
+
     return new UserEntity(user.toObject());
   }
 
@@ -137,19 +139,30 @@ export class AuthService {
     return user;
   }
 
-
   async forgotPassword(email: string): Promise<void> {
     const user = await this.usersService.findUserByEmail(email);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-  
+
     const resetToken = randomBytes(32).toString('hex');
     await this.usersService.saveResetPasswordToken(user._id.toString(), resetToken);
-  
-    const resetPasswordUrl = `http://localhost:8000/reset-password?token=${resetToken}`;
-  
+    const resetPasswordUrl = `${this.configService.get('RESET_PASSWORD_FRONTEND_URL')}?token=${resetToken}`;
     await this.mailService.sendPasswordResetMail(email, resetPasswordUrl);
+  }
+
+  async setNewPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.usersService.findUserByResetToken(token);
+    if (!user) {
+      console.log('Invalid or expired reset token');
+      throw new NotFoundException('Invalid or expired reset token');
+    }
+
+    const hashedNewPassword = await hashData(newPassword);
+    await this.usersService.updateUser(user._id.toString(), {
+      password: hashedNewPassword,
+      resetPasswordToken: null
+    });
   }
 
 }
