@@ -163,6 +163,8 @@ export class AuthService {
       password: hashedNewPassword,
       resetPasswordToken: null
     });
+
+    await this.mailService.sendPasswordChangeConfirmation(user.email);
   }
 
 }

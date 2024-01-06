@@ -35,4 +35,21 @@ export class MailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendPasswordChangeConfirmation(to: string): Promise<void> {
+    const username = to.split('@')[0];
+    const mailOptions = {
+      from: this.configService.get<string>('SMTP_USER'),
+      to: to,
+      subject: `Password Changed Successfully for ${username}`,
+      html: `
+        <div>
+          <h1>Password Changed</h1>
+          <p>Your password has been successfully changed. If you did not initiate this change, please contact our support team immediately.</p>
+        </div>
+      `,
+    };
+  
+    await this.transporter.sendMail(mailOptions);
+  }
 }
