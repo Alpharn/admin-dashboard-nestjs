@@ -38,6 +38,7 @@ export class MailService {
 
   async sendPasswordChangeConfirmation(to: string): Promise<void> {
     const username = to.split('@')[0];
+    const supportLink = 'https://c.tenor.com/y2JXkY1pXkwAAAAC/tenor.gif'
     const mailOptions = {
       from: this.configService.get<string>('SMTP_USER'),
       to: to,
@@ -46,6 +47,7 @@ export class MailService {
         <div>
           <h1>Password Changed</h1>
           <p>Your password has been successfully changed. If you did not initiate this change, please contact our support team immediately.</p>
+          <a href="${supportLink}">Contact support</a>
         </div>
       `,
     };
