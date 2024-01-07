@@ -11,6 +11,12 @@ import { PostsModule } from './posts/posts.module';
 import { ContentModule } from './content/content.module';
 import { AwsModule } from './aws/aws.module';
 import { MailService } from './auth/services/mail.service';
+import { FacebookAuthModule } from './auth-facebook/auth-facebook.module';
+import { FacebookService } from './auth-facebook/services/facebook.service';
+import { FacebookAuthController } from './auth-facebook/controllers/facebook-auth.controller';
+import { AppleAuthModule } from './auth-apple/auth-apple.module';
+import { AppleService } from './auth-apple/services/apple.service';
+import { AppleAuthController } from './auth-apple/controllers/apple.controller';
 
 @Module({
   imports: [
@@ -24,9 +30,11 @@ import { MailService } from './auth/services/mail.service';
     RolesModule,
     PostsModule,
     ContentModule,
-    AwsModule 
+    AwsModule,
+    FacebookAuthModule,
+    AppleAuthModule 
   ],
-  controllers: [AppController],
-  providers: [AppService, MailService],
+  controllers: [ AppController, FacebookAuthController, AppleAuthController ],
+  providers: [ AppService, MailService, AppleService, FacebookService ],
 })
 export class AppModule {}

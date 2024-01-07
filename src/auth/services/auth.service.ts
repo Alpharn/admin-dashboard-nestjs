@@ -163,26 +163,5 @@ export class AuthService {
 
     await this.mailService.sendPasswordChangeConfirmation(user.email);
   }
-
-  async signInWithFacebook(profile: any): Promise<Tokens> {
-    let user = await this.usersService.findUserByEmail(profile.email);
   
-    if (!user) {
-      const userRoleId = await this.rolesService.getUserRoleId();
-  
-      const createUserDto: CreateUserDto = {
-        email: profile.email,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        password: '', 
-        age: undefined, 
-        roleId: userRoleId, 
-      };
-      user = await this.usersService.createUser(createUserDto);
-    }
-  
-    const tokens = await this.getTokens(user);
-    await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
-    return tokens;
-  }
 }

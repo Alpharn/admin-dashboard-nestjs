@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, Param, Patch, HttpCode, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, Param, Patch, HttpCode } from '@nestjs/common';
 import { Request, Response } from 'express';
 import {
   ApiBadRequestResponse,
@@ -10,7 +10,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 
 import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -102,23 +101,5 @@ export class AuthController {
     await this.authService.setNewPassword(setPasswordDto.token, setPasswordDto.newPassword);
   }
 
-  @Public()
-  @Get('facebook')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLogin(): Promise<void>  {
-    // Passport will automatically redirect the user to the Facebook login page
-  }
-
-  @Public()
-  @Get('facebook/callback')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookAuthRedirect(@Req() req, @Res() res: Response): Promise<Response> {
-    const profile = req.user;
-    const tokens = await this.authService.signInWithFacebook(profile);
-
-    res.cookie('accessToken', tokens.accessToken, { httpOnly: true });
-    res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
-    return res.json({ message: 'Facebook login successful', accessToken: tokens.accessToken });
-  }
 
 }
