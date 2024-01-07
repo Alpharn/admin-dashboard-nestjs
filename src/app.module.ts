@@ -17,6 +17,9 @@ import { FacebookAuthController } from './auth-facebook/controllers/facebook-aut
 import { AppleAuthModule } from './auth-apple/auth-apple.module';
 import { AppleService } from './auth-apple/services/apple.service';
 import { AppleAuthController } from './auth-apple/controllers/apple.controller';
+import { AuthGoogleModule } from './auth-google/auth-google.module';
+import { GoogleAuthController } from './auth-google/controller/google.controller';
+import { GoogleService } from './auth-google/services/google.service';
 
 @Module({
   imports: [
@@ -32,9 +35,10 @@ import { AppleAuthController } from './auth-apple/controllers/apple.controller';
     ContentModule,
     AwsModule,
     FacebookAuthModule,
-    AppleAuthModule 
+    AppleAuthModule,
+    AuthGoogleModule,
   ],
-  controllers: [ AppController, FacebookAuthController, AppleAuthController ],
-  providers: [ AppService, MailService, AppleService, FacebookService ],
+  controllers: [ AppController, FacebookAuthController, AppleAuthController, GoogleAuthController  ],
+  providers: [ AppService, MailService, AppleService, FacebookService, GoogleService ],
 })
 export class AppModule {}
