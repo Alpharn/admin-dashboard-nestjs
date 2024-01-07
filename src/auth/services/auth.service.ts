@@ -1,10 +1,11 @@
 import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 import { UsersService } from 'src/users/services/users.service';
-
 import { jwtConstants } from 'src/utils/constants';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UserDocument } from 'src/users/schemas/user.schema';
@@ -13,9 +14,7 @@ import { LoginDto } from '../dto/login.dto';
 import { Tokens, Payload } from '../interfaces/auth.interfaces';
 import { hashData } from "src/utils/hash.utils";
 import { RolesService } from 'src/roles/services/roles.service';
-import { randomBytes } from 'crypto';
 import { MailService } from './mail.service';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +25,7 @@ export class AuthService {
     private rolesService: RolesService,
     private mailService: MailService,
     private configService: ConfigService
-  ) { }
+  ) {}
 
   async getTokens(user: UserDocument): Promise<Tokens> {
     const payload = {
@@ -67,7 +66,6 @@ export class AuthService {
 
     const tokens = await this.getTokens(user);
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
-
     return new UserEntity(user.toObject());
   }
 
@@ -154,7 +152,6 @@ export class AuthService {
   async setNewPassword(token: string, newPassword: string): Promise<void> {
     const user = await this.usersService.findUserByResetToken(token);
     if (!user) {
-      console.log('Invalid or expired reset token');
       throw new NotFoundException('Invalid or expired reset token');
     }
 
@@ -167,4 +164,25 @@ export class AuthService {
     await this.mailService.sendPasswordChangeConfirmation(user.email);
   }
 
+  async signInWithFacebook(profile: any): Promise<Tokens> {
+    let user = await this.usersService.findUserByEmail(profile.email);
+  
+    if (!user) {
+      const userRoleId = await this.rolesService.getUserRoleId();
+  
+      const createUserDto: CreateUserDto = {
+        email: profile.email,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        password: '', 
+        age: undefined, 
+        roleId: userRoleId, 
+      };
+      user = await this.usersService.createUser(createUserDto);
+    }
+  
+    const tokens = await this.getTokens(user);
+    await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
+    return tokens;
+  }
 }
