@@ -40,7 +40,7 @@ export class GoogleService {
   // }
   async signInWithGoogle(profile: any): Promise<Tokens> {
     console.log('Google profile:', profile);
-    const googleId = profile.googleId;
+    const googleId = profile.id;
     if (!googleId) {
       throw new BadRequestException('Google ID is required');
     }
@@ -52,8 +52,8 @@ export class GoogleService {
 
       const createUserDto: CreateUserDto = {
         email: profile.email,
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
+        firstName: profile.givenName || '',
+        lastName: profile.familyName || '',
         googleId: googleId,
         password: '',
         roleId: userRoleId
