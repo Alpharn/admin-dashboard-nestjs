@@ -13,20 +13,18 @@ export class AppleAuthController {
   constructor(private appleService: AppleService) {}
 
   @Public()
-  @Get('apple')
+  @Get()
   @UseGuards(AuthGuard('apple'))
   async appleLogin(): Promise<void> {}
 
   @Public()
-  @Get('apple/callback')
+  @Get('callback')
   @UseGuards(AuthGuard('apple'))
   async appleAuthRedirect(@Req() req, @Res() res: Response): Promise<Response> {
     const profile = req.user;
     const tokens = await this.appleService.signInWithApple(profile);
-
     res.cookie('accessToken', tokens.accessToken, { httpOnly: true });
     res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
-
     return res.json({ message: 'Apple login successful', accessToken: tokens.accessToken });
   }
 }

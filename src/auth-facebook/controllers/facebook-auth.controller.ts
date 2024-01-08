@@ -13,14 +13,14 @@ export class FacebookAuthController {
   constructor(private facebookService: FacebookService) {}
 
   @Public()
-  @Get('facebook')
+  @Get()
   @UseGuards(AuthGuard('facebook'))
   async facebookLogin(): Promise<void> {
     // Passport will automatically redirect the user to the Facebook login page
   }
 
   @Public()
-  @Get('facebook/callback')
+  @Get('callback')
   @UseGuards(AuthGuard('facebook'))
   async facebookAuthRedirect(@Req() req, @Res() res: Response): Promise<Response> {
     const profile = req.user;
