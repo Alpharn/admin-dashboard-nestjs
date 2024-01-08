@@ -28,7 +28,8 @@ export class GoogleAuthController {
     res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
     return res.json({ message: 'Google login successful', accessToken: tokens.accessToken });
   }
-
+  
+  @Public()
   @Post('sign-in')
   async handleGoogleSignIn(@Body() googleUserData: any) {
     return this.googleService.signInWithGoogle(googleUserData);
