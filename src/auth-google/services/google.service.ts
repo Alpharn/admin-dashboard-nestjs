@@ -14,28 +14,52 @@ export class GoogleService {
     private rolesService: RolesService
   ) { }
 
+  // async signInWithGoogle(profile: any): Promise<Tokens> {
+  //   console.log('Google profile:', profile);
+  //   const email = profile.email;
+  //   if (!email) {
+  //     throw new BadRequestException('Email is required');
+  //   }
+  //   let user = await this.usersService.findUserByEmail(email);
+
+  //   if (!user) {
+  //     const userRoleId = await this.rolesService.getUserRoleId();
+
+  //     const createUserDto: CreateUserDto = {
+  //       email: email,
+  //       firstName: profile.firstName || '',
+  //       lastName: profile.lastName || '',
+  //       password: '',
+  //       age: undefined,
+  //       roleId: userRoleId,
+  //     };
+  //     user = await this.usersService.createUser(createUserDto);
+  //   }
+
+  //   return this.authService.getTokens(user);
+  // }
   async signInWithGoogle(profile: any): Promise<Tokens> {
     console.log('Google profile:', profile);
-    const email = profile.email;
-    if (!email) {
-      throw new BadRequestException('Email is required');
+    const googleId = profile.googleId;
+    if (!googleId) {
+      throw new BadRequestException('Google ID is required');
     }
-    let user = await this.usersService.findUserByEmail(email);
+
+    let user = await this.usersService.findUserByGoogleId(googleId);
 
     if (!user) {
       const userRoleId = await this.rolesService.getUserRoleId();
 
       const createUserDto: CreateUserDto = {
-        email: email,
+        email: profile.email,
         firstName: profile.firstName || '',
         lastName: profile.lastName || '',
+        googleId: googleId,
         password: '',
-        age: undefined,
-        roleId: userRoleId,
+        roleId: userRoleId
       };
       user = await this.usersService.createUser(createUserDto);
     }
-
     return this.authService.getTokens(user);
   }
 }

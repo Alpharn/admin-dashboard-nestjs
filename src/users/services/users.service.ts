@@ -79,4 +79,8 @@ export class UsersService {
     return this.userModel.findOne({ resetPasswordToken: resetToken }).exec();
   }
 
+  async findUserByGoogleId(googleId: string): Promise<UserDocument | undefined> {
+    return this.userModel.findOne({ googleId }).exec();
+  }
+
 }

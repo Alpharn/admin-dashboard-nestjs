@@ -15,7 +15,7 @@ export class CreateUserDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNumber()
-  age: number;
+  age?: number;
 
   @ApiProperty()
   @IsEmail()
@@ -29,4 +29,19 @@ export class CreateUserDto {
   @ApiProperty({ required: false })
   @IsOptional()
   roleId: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  googleId?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  appleId?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  facebookId?: string;
 }

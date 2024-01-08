@@ -34,5 +34,14 @@ export class User {
 
   @Prop({ type: String, required: false })
   resetPasswordToken?: string;
+
+  @Prop({ type: String, required: false, unique: true })
+  googleId?: string;
+
+  @Prop({ type: String, required: false, unique: true })
+  appleId?: string;
+
+  @Prop({ type: String, required: false, unique: true })
+  facebookId?: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
