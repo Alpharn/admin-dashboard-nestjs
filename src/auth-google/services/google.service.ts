@@ -15,6 +15,7 @@ export class GoogleService {
   ) { }
 
   async signInWithGoogle(profile: any): Promise<Tokens> {
+    console.log('Google profile:', profile);
     const email = profile.email;
     if (!email) {
       throw new BadRequestException('Email is required');
