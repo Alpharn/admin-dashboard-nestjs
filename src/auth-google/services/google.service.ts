@@ -12,41 +12,27 @@ export class GoogleService {
     private usersService: UsersService,
     private authService: AuthService,
     private rolesService: RolesService
-  ) { }
+  ) {}
 
-  // async signInWithGoogle(profile: any): Promise<Tokens> {
-  //   console.log('Google profile:', profile);
-  //   const email = profile.email;
-  //   if (!email) {
-  //     throw new BadRequestException('Email is required');
-  //   }
-  //   let user = await this.usersService.findUserByEmail(email);
-
-  //   if (!user) {
-  //     const userRoleId = await this.rolesService.getUserRoleId();
-
-  //     const createUserDto: CreateUserDto = {
-  //       email: email,
-  //       firstName: profile.firstName || '',
-  //       lastName: profile.lastName || '',
-  //       password: '',
-  //       age: undefined,
-  //       roleId: userRoleId,
-  //     };
-  //     user = await this.usersService.createUser(createUserDto);
-  //   }
-
-  //   return this.authService.getTokens(user);
-  // }
+  /**
+   * Handles the sign-in process for Google authenticated users.
+   * This method checks if a user with the given Google ID exists in the database.
+   * If not, it creates a new user with the provided Google profile information.
+   *
+   * @param profile The Google user profile data received from the authentication process.
+   * 
+   * @returns A Promise that resolves to the authentication tokens (access and refresh tokens).
+   * 
+   * @throws BadRequestException if the Google ID is not provided in the profile.
+   */
   async signInWithGoogle(profile: any): Promise<Tokens> {
-    console.log('Google profile:', profile);
     const googleId = profile.id;
     if (!googleId) {
       throw new BadRequestException('Google ID is required');
     }
 
     let user = await this.usersService.findUserByGoogleId(googleId);
-
+    // If the user does not exist, create a new user with the given Google profile information.
     if (!user) {
       const userRoleId = await this.rolesService.getUserRoleId();
 
@@ -54,8 +40,8 @@ export class GoogleService {
         email: profile.email,
         firstName: profile.givenName || '',
         lastName: profile.familyName || '',
-        googleId: googleId,
-        password: '',
+        googleId: googleId, // Store the Google ID
+        password: '', // Password is not set as the authentication is done through Google
         roleId: userRoleId
       };
       user = await this.usersService.createUser(createUserDto);
