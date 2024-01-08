@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -27,5 +27,10 @@ export class GoogleAuthController {
     res.cookie('accessToken', tokens.accessToken, { httpOnly: true });
     res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true });
     return res.json({ message: 'Google login successful', accessToken: tokens.accessToken });
+  }
+
+  @Post('sign-in')
+  async handleGoogleSignIn(@Body() googleUserData: any) {
+    return this.googleService.signInWithGoogle(googleUserData);
   }
 }
